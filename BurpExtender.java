@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.StringJoiner;
 import java.util.logging.Level;
@@ -26,7 +27,7 @@ public class BurpExtender implements IBurpExtender, IProxyListener
     public BurpExtender()
     {
         this.name = "Gather Contacts";
-        this.version = "0.2";
+        this.version = "0.2.1";
     }
 
     @Override
@@ -57,7 +58,8 @@ public class BurpExtender implements IBurpExtender, IProxyListener
         if(!messageIsRequest){
             byte[] response = (message.getMessageInfo()).getResponse();
             IResponseInfo analyzedResponse = helpers.analyzeResponse(response);
-            String bodyStr = helpers.bytesToString(Arrays.copyOfRange(response, analyzedResponse.getBodyOffset(),response.length));
+            byte[] bodyBytes = Arrays.copyOfRange(response, analyzedResponse.getBodyOffset(), response.length);
+            String bodyStr = new String(bodyBytes, StandardCharsets.UTF_8);
             if(bodyStr.contains("xing.com")){
                 Document doc = Jsoup.parse(bodyStr);
                 Elements anchors = doc.getElementsByTag("a");
